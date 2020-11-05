@@ -11,12 +11,13 @@ const APP_NAME = "TotalCoats"
 
 const api = new ParseServer({
   databaseURI: 'mongodb://localhost:27017/test',
-  // cloud: __dirname + '/functions/main.js', // Absolute path to your Cloud Code
+  cloud: __dirname + '/functions/main.js', // Absolute path to your Cloud Code
   appId: process.env.PARSE_APP_ID,
   masterKey: process.env.PARSE_MASTER_KEY, // Keep this key secret!
   serverURL: SERVER_URL, // Don't forget to change to https if needed
   restApiKey: process.env.PARSE_REST_API_KEY,
   allowClientClassCreation: false,
+  javascriptKey: process.env.PARSE_JAVASCRIPT_KEY,
 });
 
 const dashboard = new ParseDashboard({
@@ -26,6 +27,7 @@ const dashboard = new ParseDashboard({
       "appId": process.env.PARSE_APP_ID,
       "masterKey": process.env.PARSE_MASTER_KEY,
       "appName": APP_NAME,
+      "javascriptKey": process.env.PARSE_JAVASCRIPT_KEY,
     }
   ]
 })
