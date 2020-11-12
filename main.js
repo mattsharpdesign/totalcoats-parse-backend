@@ -17,7 +17,7 @@ const api = new ParseServer({
   serverURL: SERVER_URL, // Don't forget to change to https if needed
   restApiKey: process.env.PARSE_REST_API_KEY,
   allowClientClassCreation: false,
-  javascriptKey: process.env.PARSE_JAVASCRIPT_KEY,
+  // javascriptKey: process.env.PARSE_JAVASCRIPT_KEY,
 });
 
 const dashboard = new ParseDashboard({
