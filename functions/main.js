@@ -34,15 +34,30 @@ Parse.Cloud.beforeFind('Job', async req => {
     const { status } = req.query._where
     let originalQuery = req.query
     let statusQuery = new Parse.Query('Job')
+    let finished = new Parse.Query('Job').greaterThan('quantityDelivered', 0)
+    let unfinished = Parse.Query.or(
+      new Parse.Query('Job').doesNotExist('quantityDelivered'),
+      new Parse.Query('Job').equalTo('quantityDelivered', 0),
+      new Parse.Query('Job').equalTo('quantityDelivered', '')
+    )
+    let uninvoiced = Parse.Query.and(
+      finished,
+      Parse.Query.or(
+        new Parse.Query('Job').doesNotExist('invoiceNumber'),
+        new Parse.Query('Job').equalTo('invoiceNumber', 0),
+        new Parse.Query('Job').equalTo('invoiceNumber', '')
+      )
+    )
     switch (status) {
       case 'unfinished':
-        let dneQuery = new Parse.Query('Job').doesNotExist('quantityDelivered')
-        let zeroQuery = new Parse.Query('Job').equalTo('quantityDelivered', 0)
-        let emptyQuery = new Parse.Query('Job').equalTo('quantityDelivered', '')
-        statusQuery = Parse.Query.or(dneQuery, zeroQuery, emptyQuery)
+        statusQuery = unfinished
         break;
       case 'finished':
-        statusQuery.greaterThanOrEqualTo('quantityDelivered', 1)
+        // statusQuery.greaterThanOrEqualTo('quantityDelivered', 1)
+        statusQuery = finished
+        break;
+      case 'uninvoiced':
+        statusQuery = uninvoiced
         break;
       default:
         console.log(`Unknown status "${status}" provided to job query`)
