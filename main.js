@@ -2,9 +2,12 @@ const express = require('express')
 const ParseServer = require('parse-server').ParseServer
 const ParseDashboard = require('parse-dashboard')
 const app = express()
+const cors = require('cors')
 
 const dotenv = require('dotenv')
 dotenv.config()
+
+const pdf = require('html-pdf')
 
 const SERVER_URL = "http://localhost:1337/api"
 const APP_NAME = "TotalCoats"
@@ -32,15 +35,28 @@ const dashboard = new ParseDashboard({
   ]
 })
 
+app.use(cors())
+
+app.get('/pdf/job-sheet/:jobNumber', (req, res) => {
+  const { jobNumber } = req.params
+  const html = `<h1>Job ${jobNumber}</h1>`
+  const options = {
+    format: 'A5',
+    orientation: 'landscape',
+  }
+  pdf.create(html, options).toBuffer((err, buffer) => {
+    res.type('pdf')
+    res.set('Content-Disposition', `attachment; filename="JOB${jobNumber}.pdf"`)
+    res.send(buffer)
+  })
+  // res.json('test')
+})
+
 app.use('/api', api)
 
 app.use('/dashboard', dashboard)
 
 app.use('/public', express.static(__dirname + '../totalcoats-mithril-frontend/public', ))
-
-app.get('/', (req, res) => {
-  res.json('Hello, developer.')
-})
 
 app.listen(1337, function() {
   console.log('Server listening on port 1337')

@@ -66,3 +66,13 @@ Parse.Cloud.beforeFind('Job', async req => {
     return Parse.Query.and(statusQuery, originalQuery)
   }
 })
+
+Parse.Cloud.define('printJobSheet', async (req, response) => {
+  const { jobNumber } = req.params
+  const pdf = require('html-pdf')
+  let htmlString = '<h1>Hello, Matt.</h1>'
+  pdf.create(htmlString).toFile(`Job${jobNumber}.pdf`, (err, res) => {
+    console.log(res.filename)
+    console.log(response)
+  })
+})
