@@ -3,6 +3,7 @@ const ParseServer = require('parse-server').ParseServer
 const ParseDashboard = require('parse-dashboard')
 const app = express()
 const cors = require('cors')
+const ejs = require('ejs')
 
 const dotenv = require('dotenv')
 dotenv.config()
@@ -39,15 +40,20 @@ app.use(cors())
 
 app.get('/pdf/job-sheet/:jobNumber', (req, res) => {
   const { jobNumber } = req.params
-  const html = `<h1>Job ${jobNumber}</h1>`
-  const options = {
-    format: 'A5',
-    orientation: 'landscape',
-  }
-  pdf.create(html, options).toBuffer((err, buffer) => {
-    res.type('pdf')
-    res.set('Content-Disposition', `attachment; filename="JOB${jobNumber}.pdf"`)
-    res.send(buffer)
+  // const html = `<h1>Job ${jobNumber}</h1>`
+  ejs.renderFile(__dirname + '/templates/job-sheet.ejs', { job: { jobNumber } }, (err, html) => {
+    if (err) {
+      console.log(err.message)
+    }
+    const options = {
+      format: 'A5',
+      orientation: 'landscape',
+    }
+    pdf.create(html, options).toBuffer((err, buffer) => {
+      res.type('pdf')
+      res.set('Content-Disposition', `attachment; filename="JOB${jobNumber}.pdf"`)
+      res.send(buffer)
+    })
   })
   // res.json('test')
 })

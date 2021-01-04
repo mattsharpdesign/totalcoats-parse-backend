@@ -56,7 +56,7 @@ Parse.Cloud.beforeFind('Job', async req => {
         // statusQuery.greaterThanOrEqualTo('quantityDelivered', 1)
         statusQuery = finished
         break;
-      case 'uninvoiced':
+      case 'to be invoiced':
         statusQuery = uninvoiced
         break;
       default:
@@ -65,14 +65,4 @@ Parse.Cloud.beforeFind('Job', async req => {
     delete originalQuery._where.status
     return Parse.Query.and(statusQuery, originalQuery)
   }
-})
-
-Parse.Cloud.define('printJobSheet', async (req, response) => {
-  const { jobNumber } = req.params
-  const pdf = require('html-pdf')
-  let htmlString = '<h1>Hello, Matt.</h1>'
-  pdf.create(htmlString).toFile(`Job${jobNumber}.pdf`, (err, res) => {
-    console.log(res.filename)
-    console.log(response)
-  })
 })
