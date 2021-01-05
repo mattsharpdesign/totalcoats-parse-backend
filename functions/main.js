@@ -1,11 +1,4 @@
-/*
- * Test cloud function
- */
-// Parse.Cloud.beforeFind('Customer', async req => {
-//   console.log('finding customers...')
-// })
-
-
+const pdf = require('html-pdf')
 
 /*
  * Add jobNumber (auto increment) to new jobs
@@ -66,3 +59,34 @@ Parse.Cloud.beforeFind('Job', async req => {
     return Parse.Query.and(statusQuery, originalQuery)
   }
 })
+
+Parse.Cloud.define('getJobSheetPdf', async req => {
+  const { id } = req.params
+  const Job = Parse.Object.extend('Job')
+  const query = new Parse.Query(Job)
+  const job = await query.get(id)
+  const html = `
+    <h1>Job ${job.get('jobNumber')}</h1>
+    <h2>Customer: ${job.get('customer') ? job.get('customer').code : 'Unknown'}
+    <h3>Order #: ${job.get('orderNumber')}</h3>
+  `
+  const options = {
+    format: 'A5',
+    orientation: 'landscape',
+  }
+  const buffer = await htmlToPdfAsBuffer(html, options)
+  const base64String = buffer.toString('base64')
+  const file = new Parse.File(`job_sheet_${job.get('jobNumber')}.pdf`, { base64: base64String }, 'application/pdf')
+  await file.save()
+  job.set('jobSheetPdf', file)
+  await job.save()
+  return file.url()
+})
+
+function htmlToPdfAsBuffer(html = '', options = {}) {
+  return new Promise((resolve, reject) => {
+    pdf.create(html, options).toBuffer((err, buffer) => {
+      resolve(buffer)
+    })
+  })
+}
