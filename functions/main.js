@@ -52,6 +52,9 @@ Parse.Cloud.beforeFind('Job', async req => {
       case 'to be invoiced':
         statusQuery = uninvoiced
         break;
+      case 'all':
+        // do nothing
+        break;
       default:
         console.log(`Unknown status "${status}" provided to job query`)
     }
@@ -60,6 +63,10 @@ Parse.Cloud.beforeFind('Job', async req => {
   }
 })
 
+/*
+ * Generate job sheet PDF, save it to Parse Files, attach it to job
+ * Send back url of newly saved PDF
+ */
 Parse.Cloud.define('getJobSheetPdf', async req => {
   const { id } = req.params
   const Job = Parse.Object.extend('Job')
