@@ -1,6 +1,15 @@
 const pdf = require('html-pdf')
 
 /*
+ * Get user's roles
+ */
+Parse.Cloud.define('getUserRoles', async req => {
+  const query = await new Parse.Query(Parse.Role).equalTo('users', req.user).find({ useMasterKey: true })
+  return query
+})
+
+
+/*
  * Add jobNumber (auto increment) to new jobs
  */
 Parse.Cloud.beforeSave('Job', async req => {
@@ -18,6 +27,7 @@ Parse.Cloud.beforeSave('Job', async req => {
     }
   }
 })
+
 
 /*
  * Fetch jobs by status if requested
@@ -63,11 +73,12 @@ Parse.Cloud.beforeFind('Job', async req => {
   }
 })
 
+
 /*
  * Generate job sheet PDF, save it to Parse Files, attach it to job
  * Send back url of newly saved PDF
  */
-Parse.Cloud.define('getJobSheetPdf', async req => {
+Parse.Cloud.define('createJobSheet', async req => {
   const { id } = req.params
   const Job = Parse.Object.extend('Job')
   const query = new Parse.Query(Job)
